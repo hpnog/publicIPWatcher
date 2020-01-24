@@ -3,6 +3,9 @@ from urllib.request import Request, urlopen
 from html.parser import HTMLParser
 from datetime import datetime
 import json
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 class MyHTMLParser(HTMLParser):
     def __init__(self, logFile):
@@ -36,6 +39,8 @@ class MyIpWatcher:
     def __init__(self):
         self.logFile = None
         self.publicIP = None
+        self.oldIp = None
+
         return
 
     def print(self, arg):
@@ -63,12 +68,11 @@ class MyIpWatcher:
         self.logFile = open("log/logFile.log", "a+")
 
     def CheckIfUpdateIsNeeded(self):
-        oldIp = None
         if os.path.exists("lastPublicIP.txt"):
             saveFile = open("lastPublicIP.txt", "r+")
-            oldIp = saveFile.read()
-            self.print("Last found IP was: " + oldIp)
-        if oldIp is None or oldIp != self.publicIP:
+            self.oldIp = saveFile.read()
+            self.print("Last found IP was: " + self.oldIp)
+        if self.oldIp is None or self.oldIp != self.publicIP:
             self.print("New update required - IP changed")
             self.updateNewIp()
         else:
@@ -83,9 +87,27 @@ class MyIpWatcher:
             data = json.load(json_file)
             email = data["email"]
             password = data["password"]
+            destinationMail = data["destination_email"]
+            subject = "[RaspBerry Pi - Public IP Watcher] - Public IP Changes"
 
-            print(email)
-            print(password)
+            message = """Your Public IP has changed (at least at the current Raspberry Pi's network)\n
+                Previous IP:  """ + str(self.oldIp) + """
+                     New IP:  """ + str(self.publicIP) + """\nYour Raspberry PI\n"""
+
+            msg = MIMEMultipart()
+            msg["From"] = email
+            msg["To"] = destinationMail
+            msg["Subject"] = subject
+            msg.attach(MIMEText(message, "plain"))
+
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login(email, password)
+            text = msg.as_string()
+            server.sendmail(email, destinationMail, text)
+            server.quit()
+
+            self.print("E-mail sent")
 
         self.print("New public IP updated")
 
