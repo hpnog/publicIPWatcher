@@ -6,6 +6,9 @@ import json
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import pathlib
+
+ROOT = str(pathlib.Path(__file__).parent.absolute()) + "/"
 
 class MyHTMLParser(HTMLParser):
     def __init__(self, logFile):
@@ -63,13 +66,13 @@ class MyIpWatcher:
         self.print("Program terminated with public IP " + self.publicIP)
 
     def initLogFile(self):
-        if not os.path.exists("log"):
-            os.makedirs("log")
-        self.logFile = open("log/logFile.log", "a+")
+        if not os.path.exists(ROOT + "log"):
+            os.makedirs(ROOT + "log")
+        self.logFile = open(ROOT + "log/logFile.log", "a+")
 
     def CheckIfUpdateIsNeeded(self):
-        if os.path.exists("lastPublicIP.txt"):
-            saveFile = open("lastPublicIP.txt", "r+")
+        if os.path.exists(ROOT + "lastPublicIP.txt"):
+            saveFile = open(ROOT + "lastPublicIP.txt", "r+")
             self.oldIp = saveFile.read()
             self.print("Last found IP was: " + self.oldIp)
         if self.oldIp is None or self.oldIp != self.publicIP:
@@ -80,10 +83,10 @@ class MyIpWatcher:
 
     def updateNewIp(self):
         self.print("Upating Public IP...")
-        newFile = open("lastPublicIP.txt", "w+")
+        newFile = open(ROOT + "lastPublicIP.txt", "w+")
         newFile.write(self.publicIP)
 
-        with open("myEmailConfig.json") as json_file:
+        with open(ROOT + "myEmailConfig.json") as json_file:
             data = json.load(json_file)
             email = data["email"]
             password = data["password"]
