@@ -2,6 +2,7 @@ import os
 from urllib.request import Request, urlopen
 from html.parser import HTMLParser
 from datetime import datetime
+import json
 
 class MyHTMLParser(HTMLParser):
     def __init__(self, logFile):
@@ -78,7 +79,13 @@ class MyIpWatcher:
         newFile = open("lastPublicIP.txt", "w+")
         newFile.write(self.publicIP)
 
+        with open("myEmailConfig.json") as json_file:
+            data = json.load(json_file)
+            email = data["email"]
+            password = data["password"]
 
+            print(email)
+            print(password)
 
         self.print("New public IP updated")
 
@@ -87,4 +94,3 @@ if __name__ == "__main__":
     myWatcher.initLogFile()
     myWatcher.CheckForIpAddress()
     myWatcher.CheckIfUpdateIsNeeded()
-    
