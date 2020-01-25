@@ -63,11 +63,12 @@ class MyIpWatcher:
             email = data["email"]
             password = data["password"]
             destinationMail = data["destination_email"]
+            systemName = data["system_name"]
             subject = "[RaspBerry Pi - Public IP Watcher] - Public IP Changes"
 
             message = """Your Public IP has changed (at least at the current Raspberry Pi's network)\n
                 Previous IP:  """ + str(self.oldIp) + """
-                     New IP:  """ + str(self.publicIP) + """\nYour Raspberry PI\n"""
+                     New IP:  """ + str(self.publicIP) + """\nYour """ + systemName + """\n"""
 
             msg = MIMEMultipart()
             msg["From"] = email

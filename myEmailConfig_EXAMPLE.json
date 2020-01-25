@@ -1,5 +1,6 @@
 {
     "email": "example@example.com",
     "password": "example",
-    "destination_email": "example.example@example.com"
+    "destination_email": "example.example@example.com",
+    "system_name": "example"
 }
